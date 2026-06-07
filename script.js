@@ -34,32 +34,33 @@ function showTab(tab, btn) {
   }
 }
 
-// Submit feedback to backend
+// Submit feedback via EmailJS
 async function submitFeedback(e) {
   e.preventDefault();
-  const body = {
+  const btn = document.querySelector('#feedbackForm button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+
+  const params = {
     name: document.getElementById('fb-name').value.trim(),
     email: document.getElementById('fb-email').value.trim(),
     subject: document.getElementById('fb-subject').value.trim(),
     message: document.getElementById('fb-message').value.trim()
   };
+
   try {
-    const res = await fetch(API, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    if (res.ok) {
-      document.getElementById('feedbackForm').reset();
-      const msg = document.getElementById('fb-success');
-      msg.style.display = 'block';
-      setTimeout(() => msg.style.display = 'none', 4000);
-    } else {
-      alert('Failed to send feedback. Please try again.');
-    }
-  } catch {
-    alert('Cannot connect to server. Make sure server.js is running.');
+    await emailjs.send('service_8nv50dn', 'template_cyczpkr', params);
+    document.getElementById('feedbackForm').reset();
+    const msg = document.getElementById('fb-success');
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 4000);
+  } catch (err) {
+    console.error('EmailJS error:', err);
+    alert('Failed to send feedback. Please try again.');
   }
+
+  btn.disabled = false;
+  btn.innerHTML = 'Send Feedback <i class="fa-solid fa-paper-plane"></i>';
 }
 
 
